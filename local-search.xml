@@ -3,5 +3,32 @@
   
   
   
+  <entry>
+    <title>神经网络基本概念</title>
+    <link href="undefined2019/04/25/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/"/>
+    <url>2019/04/25/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    
+    <content type="html"><![CDATA[<h3 id="最简单的感知模型"><a href="#最简单的感知模型" class="headerlink" title="最简单的感知模型"></a>最简单的感知模型</h3><p>一个输入x，权重w，偏置b，<br>y = wx + b</p><ul><li><p>以上是最基本的线性函数，但是大多数数据分类都是非线性的，所以需要进过一个激活函数</p></li><li><p>y = 激活函数(wx+b)</p></li><li><p>激活函数的定义：把不同神经元之间单纯的矩阵相乘，变成非线性的变化</p></li><li><p>正向传播：就是输入值经过一系列权重和激活函数的运算</p></li><li><p>反向传播：就是根据预测值和真实值之间的差值，对应的调整前面的权值的过程</p></li><li><p>反向传播是神经网络的精华：反向传播，算法有梯度下降的方式<br>求梯度就是求导数（斜率）<br>根据输出对w求偏导数，（链式法则）</p></li><li><p>激活函数：sigmotd函数，relu函数，tanh函数，softmax函数（归一化函数） </p></li><li><p>digmotd函数，弱点是：容易梯度消失</p></li><li><p>正则化项，防止过拟合问题 </p></li><li><p>dropout 防止过拟合问题，就是在更新权值的时候，忽略掉一些神经元</p></li></ul><h3 id="CNN-卷积神经网络"><a href="#CNN-卷积神经网络" class="headerlink" title="CNN 卷积神经网络"></a>CNN 卷积神经网络</h3><p>input -&gt; CONV -&gt; ReLU -&gt; POOL -&gt; FC</p><p>输入层<br>卷积层  filter提取特征<br>激活函数<br>池化层  特征压缩<br>全连接层</p><h3 id="RNN-递归神经网络"><a href="#RNN-递归神经网络" class="headerlink" title="RNN 递归神经网络"></a>RNN 递归神经网络</h3><p>强调前面的结果与后面的结果的关系</p><h4 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h4><blockquote><p>如果输出是线性的，那么均方误差比较合适<br>如果是S型的，交叉熵比较合适<br>softmax则使用对数释然函数</p></blockquote><h3 id="防止过拟合的方式"><a href="#防止过拟合的方式" class="headerlink" title="防止过拟合的方式"></a>防止过拟合的方式</h3><ol><li>增加数据量</li><li>增加正则化项</li><li>dropout</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>深度学习</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>深度学习</tag>
+      
+      <tag>神经网络</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
   
 </search>
