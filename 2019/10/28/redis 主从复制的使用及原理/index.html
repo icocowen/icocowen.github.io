@@ -213,7 +213,7 @@ slaveof 127.0.0.1 6380 #&lt;-- 设置主服务器为6380
 </ul>
 <p>不在文件中配置，<code>slaveof 127.0.0.1 6380</code>语句，直接用配置文件启动服务器，在<code>redis-cli -p port</code> 中配置<code>slaveof 127.0.0.1 6380</code>也能达到同样的效果</p>
 <ul>
-<li><p>[可选]如果主服务器设置了<code>masterauth</code>密码，则从服务器需要设置<code>requirepass</code>密码，我这里不做设置</p>
+<li><p>[可选]如果主服务器设置了<code>requirepass</code>密码，则从服务器需要设置<code>masterauth</code>密码，我这里不做设置</p>
 </li>
 <li><p>启动redis-server</p>
 </li>
@@ -279,7 +279,7 @@ keys *
 <li>从服务器向主服务器发送<code>psync ? -1</code> 请求完整重同步</li>
 </ol>
 <blockquote>
-<p>psync runid offset # runid 是由40位十六进制数字组成的redis ID。 offset 是上次同步到命令的偏移量 ，主服务器和从服务器各维持着一个offset，主服务器的offset表示最新同步命令的偏移量，从服务器的offset表示上次同步的命令的偏移量</p>
+<p>psync runid offset # runid 是由40位十六进制数字组成的redis ID。 offset 是上次同步到命令的偏移量 ，主服务器和从服务器各维持着一个offset，主服务器的offset表示最新同步命令的偏移量，从服务器的offset表示上次同步的命令的偏移量<br>runid用于判断，断线连时，前一次的主服务器是否相同，如果不同则执行，完整重同步，如果相同则执行，部分重同步</p>
 </blockquote>
 <ol>
 <li>主服务器收到<code>psync</code>执行<code>BGSAVE</code>命令，后台生成一个RDB文件，并使用一个缓冲区记录从现在开始执行的全部命令</li>
@@ -293,15 +293,10 @@ keys *
 <li><p>主服务器发送缓冲区命令至从数据库，更新从数据库状态至最新状态</p>
 </li>
 </ol>
-<p>图示:<br><img src="http://baidu.com/pic/doge.png" srcset="/img/loading.gif" alt="初次同步过程"></p>
+<p>图示:<br><img src="/img/allsync.png" srcset="/img/loading.gif" alt="初次同步过程"></p>
 <ul>
 <li>断线之后的同步 | 部分重同步</li>
 </ul>
-<ol>
-<li><h4 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h4></li>
-</ol>
-<p>主从服务器完成同步操作之后，如何保证主从服务器的状态一致。称为命令传播</p>
-<p>顾名思义：命令传播 就是主服务器的命令传递给从服务器</p>
 <ol>
 <li>复制偏移量</li>
 </ol>
@@ -330,7 +325,68 @@ keys *
 <li>当从服务器提供的<code>offset</code> + 1在缓冲区中，则回复<code>continue</code>并把offset之后的命令发送给从服务器</li>
 <li>当从服务器发送的<code>offset</code> + 1不在缓冲区中的时候，则回复<code>fullresync runid offset</code>并执行完整重同步</li>
 </ul>
-<h3 id="重同步的实现"><a href="#重同步的实现" class="headerlink" title="重同步的实现"></a>重同步的实现</h3><h3 id="Psync-和-sync"><a href="#Psync-和-sync" class="headerlink" title="Psync 和 sync"></a>Psync 和 sync</h3><h3 id="心跳检测"><a href="#心跳检测" class="headerlink" title="心跳检测"></a>心跳检测</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+<p>图示:<br><img src="/img/partialsync.png" srcset="/img/loading.gif" alt="部分重同步"></p>
+<h4 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h4><p>主从服务器完成同步操作之后，如何保证主从服务器的状态一致。称为命令传播</p>
+<p>顾名思义：命令传播 就是主服务器的命令传递给从服务器</p>
+<ul>
+<li>利用复制积压缓冲区</li>
+</ul>
+<h3 id="Psync-和-sync"><a href="#Psync-和-sync" class="headerlink" title="Psync 和 sync"></a>Psync 和 sync</h3><h4 id="PSYNC"><a href="#PSYNC" class="headerlink" title="PSYNC"></a>PSYNC</h4><blockquote>
+<p>高于2.8版本</p>
+</blockquote>
+<p>解决了旧版<code>sync</code>消耗大的缺点</p>
+<p>语法 <code>psync &lt;runid&gt; &lt;offset&gt;</code></p>
+<h4 id="SYNC"><a href="#SYNC" class="headerlink" title="SYNC"></a>SYNC</h4><blockquote>
+<p>低于2.8版本</p>
+</blockquote>
+<p>没有实现部分重同步，每次连接都是完整重同步，耗时不讨好</p>
+<h3 id="复制的流程"><a href="#复制的流程" class="headerlink" title="复制的流程"></a>复制的流程</h3><ol>
+<li><p>设置主服务器的IP和端口<br>客户端执行 <code>slaveof &lt;masterip&gt; &lt;port&gt;</code> 绑定主服务器</p>
+</li>
+<li><p>建立套接字<br>从服务器向主服务器发送套接字连接，主服务器记录从服务器信息，从服务器设置状态为客户端状态 <strong><em>从服务器是主服务器的客户端</em></strong></p>
+</li>
+<li><p>发送ping命令</p>
+<ul>
+<li>检查主从服务器之间的能否通信</li>
+<li>检查主服务器能否处理命令<br>发送ping之后可能收到的结果</li>
+<li>如果主服务器向从服务器返回了一个命令，但是从服务器读取命令超时，则代表主从服务器之间的链路不好，从服务器断开重新连接主服务器</li>
+<li>主服务器向从服务器返回一个错误，表示主服务器暂时无法处理这个服务的请求。这时从服务器重新连接主服务器</li>
+<li>主服务器返回<code>PONG</code>表示继续下一步</li>
+</ul>
+</li>
+<li><p>身份验证</p>
+<ul>
+<li>主服务器需要设置<code>requirepass</code></li>
+<li>从服务器需要设置<code>masterauth</code><br>可能遇到的情况</li>
+<li>主服务器设置了验证，从服务器没提供秘钥，返回<code>NOAUTh</code></li>
+<li>主服务器没设置验证，从服务器提供了秘钥, 返回<code>no password is set</code></li>
+<li>主服务器设置了验证，从服务器提供了秘钥，但是秘钥不相等, 返回<code>invalid password</code></li>
+<li>主服务器设置了验证，从服务器提供了秘钥，秘钥相等,主服务器继续工作<br>图示:<br><img src="/img/masterslaveauth.png" srcset="/img/loading.gif" alt="验证图示"></li>
+</ul>
+</li>
+<li><p>发送端口信息<br>从服务器向主服务器发送从服务器监听的端口号 <code>REPLCONF listening-port &lt;port-number&gt;</code></p>
+</li>
+<li><p>同步<br>从服务器向主服务器发送<code>psync</code></p>
+</li>
+<li><p>命令传播<br>完成同步之后，执行命令传播</p>
+</li>
+</ol>
+<h3 id="心跳检测"><a href="#心跳检测" class="headerlink" title="心跳检测"></a>心跳检测</h3><blockquote>
+<p>用于同步数据库的检查offset， 检查主从服务器链路状态， 保证安全服务</p>
+</blockquote>
+<p>命令格式 <code>REPLCONF ack &lt;replication_offset&gt;</code></p>
+<ol>
+<li>可以使用<code>info replication</code>查看<code>slave</code>条目的<code>lag</code>值，知道上一次同步已经过去多少秒</li>
+<li><code>min-slaves-to-write x</code> <code>min-slaves-max-log y</code> 从服务器数量少于x个，或者延迟大于y那么，主服务器拒绝写命令</li>
+<li>每次发送的<code>replication_offset</code>用于检查，从服务器的命令和主服务器的命令之间是否相同，如果不同则执行，部分复制操作。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>2.8之前的同步不能高效的处理数据，2.8之后的<code>psync</code>能很好地处理各种情况</li>
+<li>部分重同步，需要借助<code>runid</code> <code>offset</code> <code>backlog</code> 实现</li>
+<li>从服务器是主服务器的客户端</li>
+<li>主服务器通过命令传播的方式，保持同步之后的数据一致性</li>
+</ul>
+
             <hr>
           </div>
           <br>
@@ -348,6 +404,8 @@ keys *
               <i class="iconfont icon-tag"></i>
               
                 <a class="hover-with-bg" href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>
+              
+                <a class="hover-with-bg" href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>
               
                 <a class="hover-with-bg" href="/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a>
               

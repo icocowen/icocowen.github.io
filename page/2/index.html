@@ -129,14 +129,41 @@
     
     
     <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/">
-        <p class="h4 index-header">raft算法解析</p>
+      <a href="/2019/04/25/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">
+        <p class="h4 index-header">神经网络基本概念</p>
         
         
           
         
         <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
+          <div class="index-text mb-1">最简单的感知模型一个输入x，权重w，偏置b，y = wx + b
+
+以上是最基本的线性函数，但是大多数数据分类都是非线性的，所以需要进过一个激活函数
+
+y = 激活函数(wx+b)
+
+激活函数的定义：把不同神经元之间单纯的矩阵相乘，变成非线性的变化
+
+正向传播：就是输入值经过一系列权重和激活函数的运算
+
+反向传播：就是根据预测值和真实值之间的差值，对应的调整前面的权值的过程
+
+反向传播是神经网络的精华：反向传播，算法有梯度下降的方式求梯度就是求导数（斜率）根据输出对w求偏导数，（链式法则）
+
+激活函数：sigmotd函数，relu函数，tanh函数，softmax函数（归一化函数） 
+
+digmotd函数，弱点是：容易梯度消失
+
+正则化项，防止过拟合问题 
+
+dropout 防止过拟合问题，就是在更新权值的时候，忽略掉一些神经元
+
+
+CNN 卷积神经网络input -&gt; CONV -&gt; ReLU -&gt; POOL -&gt; FC
+输入层卷积层  filter提取特征激活函数池化层  特征压缩全连接层
+RNN 递归神经网络强调前面的结果与后面的结果的关系
+最佳实践
+如果</div>
         </div>
       </a>
 
@@ -147,15 +174,15 @@
         
           <i class="iconfont icon-inbox"></i>
           
-            <a href="/categories/%E7%AE%97%E6%B3%95">算法</a>&nbsp;
+            <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0">深度学习</a>&nbsp;
           &nbsp;
         
         
           <i class="iconfont icon-tag"></i>
           
-            <a href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>&nbsp;
+            <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0">深度学习</a>&nbsp;
           
-            <a href="/tags/consensus">consensus</a>&nbsp;
+            <a href="/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C">神经网络</a>&nbsp;
           
         
       </div>
