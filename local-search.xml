@@ -4,6 +4,102 @@
   
   
   <entry>
+    <title>redis 主从复制的使用及原理</title>
+    <link href="undefined2019/10/28/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/28/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[<h2 id="模拟搭建"><a href="#模拟搭建" class="headerlink" title="模拟搭建"></a>模拟搭建</h2><p>目标:</p><ul><li>搭建一主二从的redis环境</li></ul><p>环境:</p><ul><li>Ubuntu 16.04.6 LTS</li><li>redis 3.0.6</li></ul><p>搭建开始:</p><ol><li>下载 redis</li></ol><pre><code class="shell">sudo apt-get install redis-server</code></pre><ol start="2"><li>修改配置</li></ol><blockquote><p>因为只在一台服务器上做实验，所以需要设置不同端口模拟不同的redis服务器</p></blockquote><p>redis 服务器的默认配置是<code>/etc/redis/redis.conf</code></p><ul><li>为每个redis-server实例复制一份配置文件</li></ul><pre><code class="shell">#以实例的端口号命名文件夹mkdir 6379  6380  6381# 复制redis.confcp redis.conf 6379/redis.confcp redis.conf 6380/redis.confcp redis.conf 6381/redis.conf</code></pre><ul><li>修改配置文件端口号</li></ul><pre><code class="shell">sudo vim 6379/redis.conf#vim view# Accept connections on the specified port, default is 6379.# If port 0 is specified Redis will not listen on a TCP socket.port 6379 # &lt;-- 修改这里</code></pre><p>其他配置文件步骤相同</p><ul><li>修改配置允许其他IP访问</li></ul><pre><code class="shell">sudo vim 6379/redis.conf# vim view# By default Redis listens for connections from all the network interfaces# available on the server. It is possible to listen to just one or multiple# interfaces using the &quot;bind&quot; configuration directive, followed by one or# more IP addresses.## Examples:## bind 192.168.1.100 10.0.0.1bind 127.0.0.1 #&lt;-- 修改这里 设置允许访问的IP，这里我为了实验直接注释</code></pre><ul><li>设置主服务器</li></ul><pre><code class="shell">sudo vim 6379/redis.conf# vim view# Master-Slave replication. Use slaveof to make a Redis instance a copy of# another Redis server. A few things to understand ASAP about Redis replication.## 1) Redis replication is asynchronous, but you can configure a master to#    stop accepting writes if it appears to be not connected with at least#    a given number of slaves.# 2) Redis slaves are able to perform a partial resynchronization with the#    master if the replication link is lost for a relatively small amount of#    time. You may want to configure the replication backlog size (see the next#    sections of this file) with a sensible value depending on your needs.# 3) Replication is automatic and does not need user intervention. After a#    network partition slaves automatically try to reconnect to masters#    and resynchronize with them.## slaveof &lt;masterip&gt; &lt;masterport&gt; &lt;-- 这就是语法，根据上面的描述slaveof 127.0.0.1 6380 #&lt;-- 设置主服务器为6380</code></pre><ul><li>[另一种方式]设置主服务器</li></ul><p>不在文件中配置，<code>slaveof 127.0.0.1 6380</code>语句，直接用配置文件启动服务器，在<code>redis-cli -p port</code> 中配置<code>slaveof 127.0.0.1 6380</code>也能达到同样的效果</p><ul><li><p>[可选]如果主服务器设置了<code>masterauth</code>密码，则从服务器需要设置<code>requirepass</code>密码，我这里不做设置</p></li><li><p>启动redis-server</p></li></ul><pre><code class="shell">sudo redis-server 6379/redis.confsudo redis-server 6380/redis.confsudo redis-server 6381/redis.conf# 查看进程ps -ef | grep redis# ps resultredis      5398      1  0 08:10 ?        00:00:00 /usr/bin/redis-server 127.0.0.1:6379root       5534      1  0 08:14 ?        00:00:00 redis-server *:6379root       5539      1  0 08:14 ?        00:00:00 redis-server *:6380root       5545      1  0 08:14 ?        00:00:00 redis-server *:6381iwen       5562   3906  0 08:16 pts/2    00:00:00 grep --color=auto redis</code></pre><ul><li>验证主服务器</li></ul><pre><code class="shell">info replication# result# Replicationrole:masterconnected_slaves:2slave0:ip=127.0.0.1,port=6379,state=online,offset=1493,lag=1slave1:ip=127.0.0.1,port=6381,state=online,offset=1493,lag=1master_repl_offset:1493repl_backlog_active:1repl_backlog_size:1048576repl_backlog_first_byte_offset:2repl_backlog_histlen:1492</code></pre><p>出现<code>slave0 slave1</code> 说明从服务器配置成功</p><ul><li>验证数据复制功能</li></ul><p>在主服务器中加入如下键值对</p><pre><code class="shell">redis-cli -p 6380set hello &quot;hello info replication&quot;set salve &quot;i am your master&quot;</code></pre><p>分别进入从服务器</p><pre><code class="shell"># slave 0redis-cli -p 6379keys *# result1) &quot;hello&quot;2) &quot;salve&quot;# slave 1redis-cli -p 6381keys *# result1) &quot;hello&quot;2) &quot;salve&quot;</code></pre><h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><h3 id="复制的实现"><a href="#复制的实现" class="headerlink" title="复制的实现"></a>复制的实现</h3><h4 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h4><ul><li>初次同步 | 完整重同步</li></ul><ol><li>从服务器向主服务器发送<code>psync ? -1</code> 请求完整重同步</li></ol><blockquote><p>psync runid offset # runid 是由40位十六进制数字组成的redis ID。 offset 是上次同步到命令的偏移量 ，主服务器和从服务器各维持着一个offset，主服务器的offset表示最新同步命令的偏移量，从服务器的offset表示上次同步的命令的偏移量</p></blockquote><ol><li>主服务器收到<code>psync</code>执行<code>BGSAVE</code>命令，后台生成一个RDB文件，并使用一个缓冲区记录从现在开始执行的全部命令</li></ol><blockquote><p>BGSAVE 是非常耗时的操作。操作IO的都是非常耗时的操作</p></blockquote><ol start="3"><li><p>主服务器执行完<code>BGSAVE</code>命令之后，发送这个RDB文件至从服务器，从服务器接收并载入这个RDB文件，更新从数据库至执行<code>BGSAVE</code>时的状态</p></li><li><p>主服务器发送缓冲区命令至从数据库，更新从数据库状态至最新状态</p></li></ol><p>图示:<br><img src="http://baidu.com/pic/doge.png" srcset="/img/loading.gif" alt="初次同步过程"></p><ul><li>断线之后的同步 | 部分重同步</li></ul><ol><li><h4 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h4></li></ol><p>主从服务器完成同步操作之后，如何保证主从服务器的状态一致。称为命令传播</p><p>顾名思义：命令传播 就是主服务器的命令传递给从服务器</p><ol><li>复制偏移量</li></ol><blockquote><p>为了解决不重复同步相同命令</p></blockquote><ul><li>主服务器每传播n个字节命令，就在自己的offset上加n</li><li>从服务器每次接受到主服务器发来的n个字节命令，就在自己的offset上加上n</li></ul><p>如果主从服务器状态一致，那么他们的偏移量是相同的。如果他们的偏移量不同则表示，状态不一致。</p><ol start="2"><li>复制积压缓冲区</li></ol><blockquote><p>记录在一段时间内执行过的命令</p></blockquote><ul><li>主服务器维持着一个固定长度先进先出的队列</li></ul><blockquote><p>默认大小为1m<br>修改积压缓冲区大小 <code>repl-backlog-size</code><br><code>repl-backlog-size</code> 计算方法为 <code>second * write_size_per_second</code></p></blockquote><ul><li>主服务器在传播命令的同时会把命令加入到积压缓冲区中</li><li>当从服务器提供的<code>offset</code> + 1在缓冲区中，则回复<code>continue</code>并把offset之后的命令发送给从服务器</li><li>当从服务器发送的<code>offset</code> + 1不在缓冲区中的时候，则回复<code>fullresync runid offset</code>并执行完整重同步</li></ul><h3 id="重同步的实现"><a href="#重同步的实现" class="headerlink" title="重同步的实现"></a>重同步的实现</h3><h3 id="Psync-和-sync"><a href="#Psync-和-sync" class="headerlink" title="Psync 和 sync"></a>Psync 和 sync</h3><h3 id="心跳检测"><a href="#心跳检测" class="headerlink" title="心跳检测"></a>心跳检测</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>高可用</tag>
+      
+      <tag>主从复制</tag>
+      
+      <tag>备份</tag>
+      
+      <tag>多数据库</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>华为 AC的数据转发</title>
+    <link href="undefined2019/10/27/%E5%8D%8E%E4%B8%BA%20AC%E7%9A%84%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%8F%91/"/>
+    <url>2019/10/27/%E5%8D%8E%E4%B8%BA%20AC%E7%9A%84%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%8F%91/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>redis 发布订阅的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>观察者模式</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>B Tree 和 B+Tree</title>
+    <link href="undefined2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/"/>
+    <url>2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>算法</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>平衡树</tag>
+      
+      <tag>数据库原理</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>redis 事务的使用及原理</title>
     <link href="undefined2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
     <url>2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
@@ -20,36 +116,9 @@
     
     <tags>
       
-      <tag>ACID</tag>
-      
       <tag>数据一致性</tag>
       
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>redis 主从复制的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>主从复制</tag>
-      
-      <tag>高可用</tag>
+      <tag>ACID</tag>
       
     </tags>
     
@@ -74,34 +143,9 @@
     
     <tags>
       
-      <tag>高可用</tag>
-      
       <tag>sentiel</tag>
       
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>redis 发布订阅的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>观察者模式</tag>
+      <tag>高可用</tag>
       
     </tags>
     
@@ -166,25 +210,23 @@
   
   
   <entry>
-    <title>B Tree 和 B+Tree</title>
-    <link href="undefined2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/"/>
-    <url>2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/</url>
+    <title>linux 常用操作</title>
+    <link href="undefined2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/"/>
+    <url>2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/</url>
     
     <content type="html"><![CDATA[]]></content>
     
     
     <categories>
       
-      <category>算法</category>
+      <category>linux</category>
       
     </categories>
     
     
     <tags>
       
-      <tag>平衡树</tag>
-      
-      <tag>数据库原理</tag>
+      <tag>常用操作</tag>
       
     </tags>
     

@@ -129,57 +129,58 @@
     
     
     <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
-        <p class="h4 index-header">redis 事务的使用及原理</p>
-        
-        
-          
-        
-        <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
-        </div>
-      </a>
-
-      <div>
-        
-          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
-        
-        
-          <i class="iconfont icon-inbox"></i>
-          
-            <a href="/categories/redis">redis</a>&nbsp;
-          &nbsp;
-        
-        
-          <i class="iconfont icon-tag"></i>
-          
-            <a href="/tags/ACID">ACID</a>&nbsp;
-          
-            <a href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>&nbsp;
-          
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mb-4 mx-auto">
-    
-    
-    <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
+      <a href="/2019/10/28/redis%20%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
         <p class="h4 index-header">redis 主从复制的使用及原理</p>
         
         
           
         
         <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
+          <div class="index-text mb-1">模拟搭建目标:
+
+搭建一主二从的redis环境
+
+环境:
+
+Ubuntu 16.04.6 LTS
+redis 3.0.6
+
+搭建开始:
+
+下载 redis
+
+sudo apt-get install redis-server
+
+修改配置
+
+
+因为只在一台服务器上做实验，所以需要设置不同端口模拟不同的redis服务器
+
+redis 服务器的默认配置是/etc/redis/redis.conf
+
+为每个redis-server实例复制一份配置文件
+
+#以实例的端口号命名文件夹
+mkdir 6379  6380  6381
+# 复制redis.conf
+cp redis.conf 6379/redis.conf
+cp redis.conf 6380/redis.conf
+cp redis.conf 6381/redis.conf
+
+修改配置文件端口号
+
+sudo vim 6379/redis.conf
+
+#vim view
+
+# Accept connections on the specified port, default is 6379.
+# If port 0 is specifie</div>
         </div>
       </a>
 
       <div>
         
-          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-28&nbsp;&nbsp;
         
         
           <i class="iconfont icon-inbox"></i>
@@ -190,9 +191,13 @@
         
           <i class="iconfont icon-tag"></i>
           
+            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
+          
             <a href="/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a>&nbsp;
           
-            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
+            <a href="/tags/%E5%A4%87%E4%BB%BD">备份</a>&nbsp;
+          
+            <a href="/tags/%E5%A4%9A%E6%95%B0%E6%8D%AE%E5%BA%93">多数据库</a>&nbsp;
           
         
       </div>
@@ -203,8 +208,8 @@
     
     
     <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
-        <p class="h4 index-header">redis Sentinel的使用及原理</p>
+      <a href="/2019/10/27/%E5%8D%8E%E4%B8%BA%20AC%E7%9A%84%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%8F%91/">
+        <p class="h4 index-header">华为 AC的数据转发</p>
         
         
           
@@ -219,18 +224,6 @@
           <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
         
         
-          <i class="iconfont icon-inbox"></i>
-          
-            <a href="/categories/redis">redis</a>&nbsp;
-          &nbsp;
-        
-        
-          <i class="iconfont icon-tag"></i>
-          
-            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
-          
-            <a href="/tags/sentiel">sentiel</a>&nbsp;
-          
         
       </div>
     </div>
@@ -265,6 +258,117 @@
           <i class="iconfont icon-tag"></i>
           
             <a href="/tags/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F">观察者模式</a>&nbsp;
+          
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 mx-auto">
+    
+    
+    <div class="col-12 col-md-8 m-auto">
+      <a href="/2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/">
+        <p class="h4 index-header">B Tree 和 B+Tree</p>
+        
+        
+          
+        
+        <div class="index-excerpt" >
+          <div class="index-text mb-1"></div>
+        </div>
+      </a>
+
+      <div>
+        
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
+        
+        
+          <i class="iconfont icon-inbox"></i>
+          
+            <a href="/categories/%E7%AE%97%E6%B3%95">算法</a>&nbsp;
+          &nbsp;
+        
+        
+          <i class="iconfont icon-tag"></i>
+          
+            <a href="/tags/%E5%B9%B3%E8%A1%A1%E6%A0%91">平衡树</a>&nbsp;
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86">数据库原理</a>&nbsp;
+          
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 mx-auto">
+    
+    
+    <div class="col-12 col-md-8 m-auto">
+      <a href="/2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
+        <p class="h4 index-header">redis 事务的使用及原理</p>
+        
+        
+          
+        
+        <div class="index-excerpt" >
+          <div class="index-text mb-1"></div>
+        </div>
+      </a>
+
+      <div>
+        
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
+        
+        
+          <i class="iconfont icon-inbox"></i>
+          
+            <a href="/categories/redis">redis</a>&nbsp;
+          &nbsp;
+        
+        
+          <i class="iconfont icon-tag"></i>
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>&nbsp;
+          
+            <a href="/tags/ACID">ACID</a>&nbsp;
+          
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 mx-auto">
+    
+    
+    <div class="col-12 col-md-8 m-auto">
+      <a href="/2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
+        <p class="h4 index-header">redis Sentinel的使用及原理</p>
+        
+        
+          
+        
+        <div class="index-excerpt" >
+          <div class="index-text mb-1"></div>
+        </div>
+      </a>
+
+      <div>
+        
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
+        
+        
+          <i class="iconfont icon-inbox"></i>
+          
+            <a href="/categories/redis">redis</a>&nbsp;
+          &nbsp;
+        
+        
+          <i class="iconfont icon-tag"></i>
+          
+            <a href="/tags/sentiel">sentiel</a>&nbsp;
+          
+            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
           
         
       </div>
@@ -351,8 +455,8 @@
     
     
     <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/">
-        <p class="h4 index-header">B Tree 和 B+Tree</p>
+      <a href="/2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/">
+        <p class="h4 index-header">linux 常用操作</p>
         
         
           
@@ -369,15 +473,13 @@
         
           <i class="iconfont icon-inbox"></i>
           
-            <a href="/categories/%E7%AE%97%E6%B3%95">算法</a>&nbsp;
+            <a href="/categories/linux">linux</a>&nbsp;
           &nbsp;
         
         
           <i class="iconfont icon-tag"></i>
           
-            <a href="/tags/%E5%B9%B3%E8%A1%A1%E6%A0%91">平衡树</a>&nbsp;
-          
-            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86">数据库原理</a>&nbsp;
+            <a href="/tags/%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C">常用操作</a>&nbsp;
           
         
       </div>
@@ -448,44 +550,18 @@ RNN 递归神经网络强调前面的结果与后面的结果的关系
     </div>
   </div>
 
-  <div class="row mb-4 mx-auto">
-    
-    
-    <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/">
-        <p class="h4 index-header">raft算法解析</p>
-        
-        
-          
-        
-        <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
-        </div>
-      </a>
-
-      <div>
-        
-          <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-25&nbsp;&nbsp;
-        
-        
-          <i class="iconfont icon-inbox"></i>
-          
-            <a href="/categories/%E7%AE%97%E6%B3%95">算法</a>&nbsp;
-          &nbsp;
-        
-        
-          <i class="iconfont icon-tag"></i>
-          
-            <a href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>&nbsp;
-          
-            <a href="/tags/consensus">consensus</a>&nbsp;
-          
-        
-      </div>
-    </div>
-  </div>
 
 
+  <nav aria-label="index posts navigation">
+    <ul class="pagination pg-blue justify-content-center mt-5">
+      
+      
+        <li class="page-item">
+          <a class="page-link" href="/page/2/#board">下一页</a>
+        </li>
+      
+    </ul>
+  </nav>
 
 
 
