@@ -75,89 +75,6 @@
   
   
   <entry>
-    <title>redis 集群的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>高可用</tag>
-      
-      <tag>集群</tag>
-      
-      <tag>分布式</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>redis 事务的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>数据一致性</tag>
-      
-      <tag>ACID</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>B Tree 和 B+Tree</title>
-    <link href="undefined2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/"/>
-    <url>2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>算法</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>平衡树</tag>
-      
-      <tag>数据库原理</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>redis Sentinel的使用及原理</title>
     <link href="undefined2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
     <url>2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
@@ -174,9 +91,9 @@
     
     <tags>
       
-      <tag>sentiel</tag>
-      
       <tag>高可用</tag>
+      
+      <tag>sentiel</tag>
       
     </tags>
     
@@ -212,6 +129,33 @@
   
   
   <entry>
+    <title>B Tree 和 B+Tree</title>
+    <link href="undefined2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/"/>
+    <url>2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>算法</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>平衡树</tag>
+      
+      <tag>数据库原理</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>redis 发布订阅的使用及原理</title>
     <link href="undefined2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
     <url>2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
@@ -237,16 +181,45 @@
   
   
   <entry>
-    <title>raft算法解析</title>
-    <link href="undefined2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/"/>
-    <url>2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/</url>
+    <title>redis 集群的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
     
     <content type="html"><![CDATA[]]></content>
     
     
     <categories>
       
-      <category>算法</category>
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>集群</tag>
+      
+      <tag>分布式</tag>
+      
+      <tag>高可用</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>redis 事务的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
       
     </categories>
     
@@ -255,7 +228,7 @@
       
       <tag>数据一致性</tag>
       
-      <tag>consensus</tag>
+      <tag>ACID</tag>
       
     </tags>
     
@@ -283,6 +256,33 @@
       <tag>深度学习</tag>
       
       <tag>神经网络</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>raft算法解析</title>
+    <link href="undefined2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/"/>
+    <url>2019/04/25/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>算法</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>数据一致性</tag>
+      
+      <tag>consensus</tag>
       
     </tags>
     
