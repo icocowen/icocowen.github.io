@@ -20,9 +20,9 @@
     
     <tags>
       
-      <tag>高可用</tag>
-      
       <tag>数据一致性</tag>
+      
+      <tag>高可用</tag>
       
       <tag>主从复制</tag>
       
@@ -44,33 +44,6 @@
     <content type="html"><![CDATA[]]></content>
     
     
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>redis Sentinel的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>sentiel</tag>
-      
-      <tag>高可用</tag>
-      
-    </tags>
     
   </entry>
   
@@ -131,6 +104,33 @@
   
   
   <entry>
+    <title>redis 事务的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>数据一致性</tag>
+      
+      <tag>ACID</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>B Tree 和 B+Tree</title>
     <link href="undefined2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/"/>
     <url>2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/</url>
@@ -158,11 +158,11 @@
   
   
   <entry>
-    <title>redis 发布订阅的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    <title>redis Sentinel的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
     
-    <content type="html"><![CDATA[]]></content>
+    <content type="html"><![CDATA[<h2 id="搭建Sentinel服务集群"><a href="#搭建Sentinel服务集群" class="headerlink" title="搭建Sentinel服务集群"></a>搭建Sentinel服务集群</h2><blockquote><p>实现2 sentinel 1主2从 redis集群</p></blockquote><p>环境:</p><ul><li>Ubuntu 16.04.6 LTS</li><li>redis 3.0.6</li></ul><ol><li>安装redis-server</li></ol><pre><code class="shell">sudo apt-get install redis-server</code></pre><blockquote><p>可以去官网下载安装包</p></blockquote><ol start="2"><li>安装redis-sentinel</li></ol><pre><code class="shell">sudo apt-get install redis-sentinel</code></pre><ol start="3"><li>新建为不同的redis实例新建一个文件夹</li></ol><blockquote><p>因为用同一台机器的不同端口号来模拟不同的redis服务器</p></blockquote><pre><code class="shell">#新建文件夹sudo mkdir 6379 6380 6381 26379 26380#为每个实例新建一个配置文件，这里直接复制sudo cp redis.conf 6379/redis.confsudo cp redis.conf 6380/redis.confsudo cp redis.conf 6381/redis.confsudo cp sentinel.conf 26379/sentinel.confsudo cp sentinel.conf 26380/sentinel.conf</code></pre><ol start="4"><li>修改redis的配置文件</li></ol><pre><code class="shell">#这里以6380为主服务器#配置主服务器的端口，和允许访问的IPsudo vim 6380/redis.conf#view# Accept connections on the specified port, default is 6379.# If port 0 is specified Redis will not listen on a TCP socket.port 6380 #&lt;--修改这#修改允许访问的IP# By default Redis listens for connections from all the network interfaces# available on the server. It is possible to listen to just one or multiple# interfaces using the &quot;bind&quot; configuration directive, followed by one or# more IP addresses.## Examples:## bind 192.168.1.100 10.0.0.1#bind 127.0.0.1  &lt;--修改这里，这里我为了方便直接注释</code></pre><p>修改从服务器的配置</p><pre><code class="shell">#这里的从服务器是（以端口号划分）：6379  6381#这里以6379为例sudo vim 6379/redis.conf#view# Accept connections on the specified port, default is 6379.# If port 0 is specified Redis will not listen on a TCP socket.port 6379 #&lt;--修改端口号#修改允许访问的IP# By default Redis listens for connections from all the network interfaces# available on the server. It is possible to listen to just one or multiple# interfaces using the &quot;bind&quot; configuration directive, followed by one or# more IP addresses.## Examples:## bind 192.168.1.100 10.0.0.1#bind 127.0.0.1 &lt;---修改这里，这里我直接注释了# 设置主服务器slaveof 127.0.0.1 6380 #&lt;--设置主服务器的ip 端口#设置masterauth 看情况设置</code></pre><p>相同的步骤修改<code>6381</code>服务器</p><ol start="5"><li>修改sentinel服务器的配置</li></ol><pre><code class="shell">#这里以26379为例sudo vim 26379/sentinel.conf#viewbind 127.0.0.1 #《--设置允许访问的ip# port &lt;sentinel-port&gt;# The port that this sentinel instance will run onport 26379 #&lt;--设置sentinel的端口# 设置监视的主服务器#sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;redis-port&gt; &lt;quorum&gt;# Tells Sentinel to monitor this master, and to consider it in O_DOWN# (Objectively Down) state only if at least &lt;quorum&gt; sentinels agree.sentinel monitor mymaster 127.0.0.1 6380 2#设置sentinel判断主观下线时间#30秒后没反应，则判断为主观下线#每个sentinel的判断主观下线的事件可以不同sentinel down-after-milliseconds mymaster 30000</code></pre><ol start="6"><li>启动所有redis实例</li></ol><pre><code class="shell">sudo redis-server 6379/redis.confsudo redis-server 6380/redis.confsudo redis-server 6381/redis.confsudo redis-sentinel 26379/sentinel.confsudo redis-sentinel 26380/sentinel.conf#查看sentinel信息redis-cli -p 26379 info#或者进入sentinelsentinel master mymastersentinel slaves mymaster</code></pre><p>可以把主服务器停掉，进过30秒之后重新出现了一台主服务器</p><h2 id="sentinel是怎么获取主从服务器信息的"><a href="#sentinel是怎么获取主从服务器信息的" class="headerlink" title="sentinel是怎么获取主从服务器信息的"></a>sentinel是怎么获取主从服务器信息的</h2><ul><li>获取主服务器信息是配置文件<code>sentinel monitor mymaster 127.0.0.1 6380 2</code>设置的。更多详细信息是通过每10秒一次的频率向主服务器发送<code>info</code>信息得到。更多详细信息，如<code>runid</code>等</li><li>从主服务器的<code>info</code>信息中获得从服务器的信息，<code>slave ip=xxx</code>,sentinel根据这些从服务器的ip信息就可以获得更多从服务器的信息了</li></ul><h2 id="sentinel是怎么保证redis服务的可用性的"><a href="#sentinel是怎么保证redis服务的可用性的" class="headerlink" title="sentinel是怎么保证redis服务的可用性的"></a>sentinel是怎么保证redis服务的可用性的</h2><ul><li>sentinel服务器每两秒一次向，主从服务器发送信息</li></ul><pre><code class="shell">publish __sentinel__:hello &quot;&lt;s_ip&gt;,&lt;s_port&gt;,&lt;s_runid&gt;,&lt;s_epoch&gt;,&lt;m_name&gt;,&lt;m_ip&gt;,&lt;m_port&gt;,&lt;m_epoch&gt;&quot;</code></pre><p><strong>s_</strong> 代表sentinel服务器<br><strong>m_</strong> 代表master服务器</p><ul><li>收到信息的服务器根据这些信息对比自己保存的信息，更新响应的状态</li><li>当其他sentinel服务器收到信息的时候会对比信息中的<code>s_runid</code>如果相同则不做处理，如果不同则说明这条信息是其他sentinel发送过来的信息，这个sentinel服务器会对这条信息做记录，用来更新自己维持的<code>sentinels</code>字典</li><li>主从服务器与sentinel服务器建立连接之后，sentinel会发送<code>subscribe __sentinel__:hello</code>，主从服务器会订阅<code>hello</code>频道，直到sentinel断开</li></ul><h2 id="sentinel是如何判断一台redis服务不可用的"><a href="#sentinel是如何判断一台redis服务不可用的" class="headerlink" title="sentinel是如何判断一台redis服务不可用的"></a>sentinel是如何判断一台redis服务不可用的</h2><p>猜想:</p><ul><li>sentinel与每台redis服务器建立心跳连接，当心跳连接超时次数超过多少多少次的时候判断，这台redis服务器为下线状态</li><li>这样思考是正确的，但是当这台sentinel 只与 redis服务之间的链路出现问题，就判断他为下线这种做法不妥当，应当多台sentinel服务器都判断他为下线的时候才为真正的下线</li></ul><p>上面的猜想在sentinel中都有很好的解决方案</p><h3 id="主观下线"><a href="#主观下线" class="headerlink" title="主观下线"></a>主观下线</h3><blockquote><p>只有sentinel S1 判断 redis A 服务器下线，还未与其他服务器进行交流</p></blockquote><p>如果一台redis服务器在<code>down-after-milliseconds</code>之内连续向sentinel回复除了<code>PONG</code> <code>LOADING</code> <code>MASTERDOWN</code>之外的回复，<br>那么这sentinel就会修改这个redis服务器所对应的实例结构的flags中打开<code>SRT_S_DWON</code>的状态，表示这个实例为主观下线状态</p><h3 id="客观下线状态"><a href="#客观下线状态" class="headerlink" title="客观下线状态"></a>客观下线状态</h3><blockquote><p>当有一台sentinel服务器判断他为主观下线状态的时候，这台sentinel服务器会向其他sentinel服务器询问。</p></blockquote><ul><li><p>询问其他sentinel服务是否同意这个redis实例为下线状态<br>命令 <code>sentinel is-master-down-by-addr &lt;ip&gt; &lt;port&gt; &lt;current_epoch&gt; &lt;runid&gt;</code></p></li><li><p>当收到其他sentinel服务器的询问的时候，sentinel会根据询问的ip和端口号去检查，这个redis服务是否已经下线</p></li></ul><pre><code class="shell">&lt;down_state&gt;&lt;leader_runid&gt;&lt;leader_epoch&gt;</code></pre><ul><li>发出询问的sentinel根据回复，设置redis服务的状态</li></ul><p>比如回复：</p><pre><code class="shell">1*0</code></pre><p>表示这个redis服务已经下线，则设置这个redis服务的状态为客观下线</p><h2 id="当一台redis服务不可用的时候sentinel是怎么做的"><a href="#当一台redis服务不可用的时候sentinel是怎么做的" class="headerlink" title="当一台redis服务不可用的时候sentinel是怎么做的"></a>当一台redis服务不可用的时候sentinel是怎么做的</h2><p>猜想:</p><ul><li>当redis主服务器被判断为客观下线状态了时，我们sentinel那么多台，应该由哪台sentinel服务器来做决定？</li><li>我们如果每台sentinel的状态都是健康的，我们就学一下民主投票，我们一起选举一位leader服务器出来，为大家做决定。</li><li>但是谁是候选人呢？</li><li>如果每台都是候选人，那他们每个人都投票给自己怎么解决呢？</li></ul><p>sentinels 为了选出谁是领导的问题，使用了数据一致性算法raft</p><ul><li>每台sentinel都维护着一个随机的计数器，每次sentinel之间的交流都会重置这个计数器，当需要选出一个leader服务器的时候不重置计数器，谁的计数器先到为0，则成为候选人，并向其他sentinel服务器，征求选票</li><li>当好几台都成为候选服务器的时候选票多的当选</li><li>如果选票一样多，再递归选出leader服务器</li><li>每次进行leader服务器选举之后，<code>epoch</code>都会加一，这个leader服务器当选的任期是，下一次出现需要选leader时</li></ul><h2 id="leader-sentinel如何进行故障转移的"><a href="#leader-sentinel如何进行故障转移的" class="headerlink" title="leader sentinel如何进行故障转移的"></a>leader sentinel如何进行故障转移的</h2><blockquote><p>选举出了leader服务器了，但是他怎么指挥进行故障转移呢？</p></blockquote><ol><li><p>选出新的主服务器<br>需要选出状态最好的拥有最新数据的从数据库，作为新的主数据库</p><ul><li>leader sentinel服务器向被选出来的从服务器发送<code>slaveof no one</code>设置这个状态为主服务器，</li><li>leader ，每10s向这个服务器发送info信息，已检查这个服务器是否顺利升为主服务器</li></ul></li><li><p>修改从服务器的复制目标<br>sentinel 向其他的从服务器发送<code>slaveof 新主服务器的ip 端口</code>，设置这个从服务器的新目标</p></li><li><p>将旧主服务器设置为从服务器<br>当这个旧的主服务器重新上线的时候，sentinel向其发送<code>slaveof 新主服务器的ip 端口</code>,设置他成为从服务器</p></li></ol><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul><li>sentinel 哨兵服务器也是redis服务器，只是他做的工作不同</li><li>sentinel 的更多配置和用法，还未深入了解</li><li>加油！</li></ul>]]></content>
     
     
     <categories>
@@ -174,7 +174,9 @@
     
     <tags>
       
-      <tag>观察者模式</tag>
+      <tag>sentiel</tag>
+      
+      <tag>高可用</tag>
       
     </tags>
     
@@ -210,9 +212,9 @@
   
   
   <entry>
-    <title>redis 事务的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    <title>redis 发布订阅的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
     
     <content type="html"><![CDATA[]]></content>
     
@@ -226,9 +228,7 @@
     
     <tags>
       
-      <tag>数据一致性</tag>
-      
-      <tag>ACID</tag>
+      <tag>观察者模式</tag>
       
     </tags>
     
