@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>redis 集群的使用及原理</title>
+    <link href="undefined2019/10/30/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/30/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[<h2 id="模拟搭建"><a href="#模拟搭建" class="headerlink" title="模拟搭建"></a>模拟搭建</h2><p>目标:</p><ul><li>搭建6个node的集群</li></ul><blockquote><p>因为是解析原理所以使用的并非是官方推荐搭建集群的方法</p></blockquote><p>环境:</p><ul><li>Ubuntu 16.04.6 LTS</li><li>redis 3.0.6</li></ul><p>搭建开始:</p><ol><li>下载 redis</li></ol><pre><code class="shell">sudo apt-get install redis-server</code></pre><ol start="2"><li>搭建前准备</li></ol><p>因为使用的是一台机器来模拟集群效果，所以使用的是端口号来表示一台redis服务器<br>这里选用的是 7000 7001 7002 7003 7004 7005</p><pre><code class="shell">#进入/etc/redis/文件夹#新建文件夹sudo mkdir 7000 7001 7002 7003 7004 7005</code></pre><ol start="3"><li>修改并分配配置</li></ol><pre><code class="shell">#修改redis.conf配置sudo vim redis.conf#按如下修改port 7000cluster-enabled yes # 启动服务器集群模式cluster-config-file nodes-7000.conf #修改集群节点配置文件名，因为用文件夹来区分node了所以名字可以相同cluster-node-timeout 5000 #修改节点超时时间#以这个redis.conf文件为模板，复制到7000 ~ 7005的文件夹sudo cp redis.conf 7000/redis.confsudo cp redis.conf 7001/redis.confsudo cp redis.conf 7002/redis.confsudo cp redis.conf 7003/redis.confsudo cp redis.conf 7004/redis.confsudo cp redis.conf 7005/redis.conf#然后在进入7001~7005的文件夹修改配置对应的端口号即可sudo vim 7001/redis.conf#viewport 7001cluster-config-file nodes-7001.conf#其他配置文件步骤一样</code></pre><ol start="4"><li>启动集群</li></ol><pre><code class="shell"># x 为 0 ~ 5 就是启动对应文件夹里的配置即可 sudo redis-server 700`x`/redis.conf #检查结果  ps -ef | grep redis 如果出现了对应端口信息的即为成功</code></pre><ol start="5"><li>给集群添加节点</li></ol><pre><code class="shell">redis-cli -p 7000 cluster meet 127.0.0.1 7001redis-cli -p 7000 cluster meet 127.0.0.1 7002redis-cli -p 7000 cluster meet 127.0.0.1 7003redis-cli -p 7000 cluster meet 127.0.0.1 7004redis-cli -p 7000 cluster meet 127.0.0.1 7005#查看结果redis-cli -p 7000 cluster nodes# result viewbf097559a9ace9680daa88158dd886cab0697c54 127.0.0.1:7004 master - 0 1572397981583 4 connected176ac38391beb7411372b1be55e8892ac4d6a665 127.0.0.1:7001 master - 0 1572397980575 1 connected1ce276ca5ced02ed6924d4aaa720c895b450be28 127.0.0.1:7005 master - 0 1572397982389 5 connectedc631948aafa91dad5771d5c7129777f4d38f3333 127.0.0.1:7002 master - 0 1572397981583 0 connected3bf8c483c13b65dac89553aaefe71902eed0af37 127.0.0.1:7000 myself,master - 0 0 2 connected889f1972be3839a2d935e9f4eadb34cc9327f78c 127.0.0.1:7003 master - 0 1572397982589 3 connected#查看当前集群状态redis-cli -p 7000 cluster info# viewcluster_state:fail cluster_slots_assigned:0cluster_slots_ok:0cluster_slots_pfail:0cluster_slots_fail:0cluster_known_nodes:6 #&lt;-- 这个代表这个集群有6个节点cluster_size:0cluster_current_epoch:5cluster_my_epoch:2cluster_stats_messages_sent:543cluster_stats_messages_received:543</code></pre><ol start="6"><li>设置集群中的主从复制</li></ol><blockquote><p>集群的高可用性</p></blockquote><ul><li>设置 7005 为7000的从服务器</li><li>设置 7004 为7001的从服务器</li><li>设置 7003 为7002的从服务器</li></ul><pre><code class="shell"># reids-cli -h &lt;host&gt; -p &lt;port&gt; cluster replicate &lt;master_runid&gt;#redis-cli -p 7000 cluster nodes 查看runidredis-cli -p 7005 cluster replicate 3bf8c483c13b65dac89553aaefe71902eed0af37redis-cli -p 7004 cluster replicate 176ac38391beb7411372b1be55e8892ac4d6a665redis-cli -p 7003 cluster replicate c631948aafa91dad5771d5c7129777f4d38f3333# 查看配置结果redis-cli -p 7000 cluster nodes#result 看到出现slave及其后面的runid与预期的相同及配置成功bf097559a9ace9680daa88158dd886cab0697c54 127.0.0.1:7004 slave 176ac38391beb7411372b1be55e8892ac4d6a665 0 1572398524954 4 connected176ac38391beb7411372b1be55e8892ac4d6a665 127.0.0.1:7001 master - 0 1572398524449 1 connected1ce276ca5ced02ed6924d4aaa720c895b450be28 127.0.0.1:7005 slave 3bf8c483c13b65dac89553aaefe71902eed0af37 0 1572398525962 5 connectedc631948aafa91dad5771d5c7129777f4d38f3333 127.0.0.1:7002 master - 0 1572398524954 0 connected3bf8c483c13b65dac89553aaefe71902eed0af37 127.0.0.1:7000 myself,master - 0 0 2 connected889f1972be3839a2d935e9f4eadb34cc9327f78c 127.0.0.1:7003 slave c631948aafa91dad5771d5c7129777f4d38f3333 0 1572398523945 3 connected</code></pre><ol start="7"><li>槽指派</li></ol><p>编写脚本</p><blockquote><p>因为槽指派每一个槽都要敲一次命令所以写循环脚本比较简单</p></blockquote><p>文件名为：<code>addslots.sh</code></p><pre><code class="shell">#/bin/bashstty -echostart=$1end=$2port=$3for slot in `seq ${start} ${end}`do    if [ $((10$slot%1000)) -eq 0 ]    then        echo &quot;slot assigned: ${slot}&quot;    fi    redis-cli -p ${port} cluster addslots ${slot}done</code></pre><p>编辑好文件之后，赋予这个文件有运行权限<code>sudo chmod u+x addslots.sh</code></p><pre><code class="shell">#槽指派sudo ./addslots.sh 0 5461 7000sudo ./addslots.sh 5461 10922  7001sudo ./addslots.sh 10922 16383 7002#命令redis-cli -p 7000 cluster info# 查看分配结果cluster_state:ok #&lt;- ok 表示集群启动成功cluster_slots_assigned:16384 #&lt;-- 槽已分配cluster_slots_ok:16384cluster_slots_pfail:0cluster_slots_fail:0cluster_known_nodes:6cluster_size:3cluster_current_epoch:5cluster_my_epoch:2cluster_stats_messages_sent:9223cluster_stats_messages_received:9223#命令 查看具体的槽信息redis-cli -p 7000 cluster slots#view 1) 1) (integer) 5462   2) (integer) 10922   3) 1) &quot;127.0.0.1&quot;      2) (integer) 7001   4) 1) &quot;127.0.0.1&quot;      2) (integer) 70042) 1) (integer) 10923   2) (integer) 16383   3) 1) &quot;127.0.0.1&quot;      2) (integer) 7002   4) 1) &quot;127.0.0.1&quot;      2) (integer) 70033) 1) (integer) 0   2) (integer) 5461   3) 1) &quot;127.0.0.1&quot;      2) (integer) 7000   4) 1) &quot;127.0.0.1&quot;      2) (integer) 7005</code></pre><ol start="8"><li>进行简单测试</li></ol><pre><code class="shell"># 我们随便加入几个键信息，看提示redis-cli -p 7000set a &quot;hello&quot;# tip(error) MOVED 15495 127.0.0.1:7002出现这个提示代表集群已经工作</code></pre><h2 id="怎么把各个节点组成集群的"><a href="#怎么把各个节点组成集群的" class="headerlink" title="怎么把各个节点组成集群的"></a>怎么把各个节点组成集群的</h2><ul><li>通过把各个独立的节点连接起来</li></ul><blockquote><p>集群中发送消息的称为sender(发送者) 接受消息的称为 receiver(接受者)</p></blockquote><ul><li>通过集群的meet命令，发送者请求接受者，加入到发送者所在的集群</li><li>集群中的节点通过<code>Gossip</code>协议进行通信，由<code>meet ping pong</code>实现</li><li>第一次发送meet消息的时候，接受者会根据发送过来的消息（其他node的ip port 等）更新自己的集群信息</li><li>根据发送者提供的ip和port消息进行握手</li></ul><h2 id="为什么要进行槽指派"><a href="#为什么要进行槽指派" class="headerlink" title="为什么要进行槽指派"></a>为什么要进行槽指派</h2><ul><li><p>为什么槽是16384个<br>因为hash槽的算法是 <code>CRC16</code> 能够产生16bit 也就是 2 ^ 16 = 65536, 而65536需要8k(65536 / 8 / 1024 = 8 )的头信息,而集群node数量基本不会超过1000个，所以既要权衡心跳包的头大小，又要携带全部的node信息，所以取 16384刚刚好为2k （16384 / 8 / 1024 = 2），2k是一个比较合理的数字(redis作者实践检验出来的)</p></li><li><p>怎么进行槽分配<code>cluster addslots x x x</code></p></li><li><p>怎么记录槽分配给了谁</p></li></ul><p>每个节点都记录着一个<code>clusterNode</code>的结构，里面存在着一个<code>slots</code>二进制数组，如果对于索引的值为1，则代表这个槽分配给了自己，为0则不是自己，集群之间的节点会传播自己的槽信息</p><p>例子：<br>比如 A 节点的clusterNode的<code>slots[100] = 1</code> 那么slots第100号槽分配给了A节点，而<code>slots[99] = 0</code>,那么slots的99号槽未分配给A</p><ul><li>如果插入的键的hash槽没有分配给自己，哪怎么插入键</li></ul><p>如果<code>CRC16(key) &amp; 16384</code>的值查找slots数组且不等于<code>clusterState.myself</code>，那么这个redis服务器node会向客户端，返回一个moved错误，指引客户端转向正确的节点，并在再次发送命令</p><p>图示:<br><img src="/img/slotsetkey.png" srcset="/img/loading.gif" alt="moved错误"><br><img src="/img/soltmoved.png" srcset="/img/loading.gif" alt="redirect"></p><h2 id="重新分片是怎么实现的"><a href="#重新分片是怎么实现的" class="headerlink" title="重新分片是怎么实现的"></a>重新分片是怎么实现的</h2><ul><li>使用集群管理软件 <code>redis-trib</code></li><li>命令 <code>cluster setslot &lt;slot&gt; importing &lt;source_id&gt;</code> 让目标节点准备好从源节点导入槽slot的键值对</li><li><code>cluster setslots &lt;slot&gt; migrating &lt;target_id&gt;</code> 让源节点准备好将槽slot的键值对迁移到目标节点</li><li><code>cluster getkeysinslots &lt;slot&gt; &lt;count&gt;</code>获得最多count个属于槽slot的key name</li><li>获得了key name 使用<code>migrate &lt;target_ip&gt; &lt;port&gt; &lt;key_name&gt; 0 &lt;timeout&gt;</code>从源节点一个一个获得值，直到全部迁移完</li><li>集群之间更新分片之后的消息 <code>cluster setslot &lt;slot&gt; node &lt;target_id&gt;</code> 通知所有节点，最新的槽分配信息</li></ul><p>键迁移过程<br><img src="/img/keymoved.png" srcset="/img/loading.gif" alt="键迁移"></p><h2 id="怎么进行故障转移和复制的"><a href="#怎么进行故障转移和复制的" class="headerlink" title="怎么进行故障转移和复制的"></a>怎么进行故障转移和复制的</h2><ul><li>复制<code>cluster replicate &lt;node_id&gt;</code>接受到命令的节点称为node_id的从节点，接受到命令的节点会在自己的clusterState.myself.slaveof指向这个指针。slave节点也会调整自己的状态为从节点状态</li><li>故障检测<br>集群中的每个节点都会定期向其他节点发送ping信息，收到的node返回pong信息，如果没有回复则会被标记为疑似下线(probable fail), 如果集群里的主节点一半都标识x node为疑似下线则，这个节点为被标记为下线，然后这些节点都会向其他node广播这个节点下线的消息</li><li>故障转移<ol><li>选举新的主节点Raft算法</li><li>新的主节点执行，<code>slave no one</code></li><li>新的主节点会撤销所有已分配主节点的委派，然后全部指向自己</li><li>新的主节点向其他节点广播<code>pong</code>通知其他主节点，自己已经成为主节点了</li><li>新的主节点完成故障转移</li></ol></li></ul><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul><li>这只是简单的运用，不涉及生产环境的设置</li><li>原理是相同的，具体实现需要阅读源码</li><li>加油!</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>高可用</tag>
+      
+      <tag>集群</tag>
+      
+      <tag>分布式</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>redis Sentinel的使用及原理</title>
     <link href="undefined2019/10/29/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
     <url>2019/10/29/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
@@ -20,9 +49,9 @@
     
     <tags>
       
-      <tag>高可用</tag>
-      
       <tag>sentiel</tag>
+      
+      <tag>高可用</tag>
       
     </tags>
     
@@ -131,62 +160,6 @@
   
   
   <entry>
-    <title>redis 持久化的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>持久化</tag>
-      
-      <tag>数据恢复</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>redis 集群的使用及原理</title>
-    <link href="undefined2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
-    <url>2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
-    
-    <content type="html"><![CDATA[]]></content>
-    
-    
-    <categories>
-      
-      <category>redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>集群</tag>
-      
-      <tag>分布式</tag>
-      
-      <tag>高可用</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>linux 常用操作</title>
     <link href="undefined2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/"/>
     <url>2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/</url>
@@ -229,6 +202,33 @@
     <tags>
       
       <tag>观察者模式</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>redis 持久化的使用及原理</title>
+    <link href="undefined2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/"/>
+    <url>2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    <categories>
+      
+      <category>redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>持久化</tag>
+      
+      <tag>数据恢复</tag>
       
     </tags>
     

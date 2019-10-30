@@ -129,6 +129,88 @@
     
     
       <div class="col-12 col-md-4 m-auto">
+        <a href="/2019/10/30/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/" target="_self">
+          <img src="/img/rediscluster.png" srcset="/img/loading.gif" alt="redis 集群的使用及原理" class="img-fluid rounded z-depth-3 index-thumbnails">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 m-auto">
+      <a href="/2019/10/30/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
+        <p class="h4 index-header">redis 集群的使用及原理</p>
+        
+        
+          
+        
+        <div class="index-excerpt" >
+          <div class="index-text mb-1">模拟搭建目标:
+
+搭建6个node的集群
+
+
+因为是解析原理所以使用的并非是官方推荐搭建集群的方法
+
+环境:
+
+Ubuntu 16.04.6 LTS
+redis 3.0.6
+
+搭建开始:
+
+下载 redis
+
+sudo apt-get install redis-server
+
+搭建前准备
+
+因为使用的是一台机器来模拟集群效果，所以使用的是端口号来表示一台redis服务器这里选用的是 7000 7001 7002 7003 7004 7005
+
+#进入/etc/redis/文件夹
+#新建文件夹
+sudo mkdir 7000 7001 7002 7003 7004 7005
+
+修改并分配配置
+
+#修改redis.conf配置
+sudo vim redis.conf
+
+#按如下修改
+port 7000
+cluster-enabled yes # 启动服务器集群模式
+cluster-config-file nodes-7000.conf #修改集群节点配置文件名，因为用文件夹来区分node了所以名字可以相同
+cluster-node-timeout 5000 #修改节点超时时间
+
+#以这个</div>
+        </div>
+      </a>
+
+      <div>
+        
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-30&nbsp;&nbsp;
+        
+        
+          <i class="iconfont icon-inbox"></i>
+          
+            <a href="/categories/redis">redis</a>&nbsp;
+          &nbsp;
+        
+        
+          <i class="iconfont icon-tag"></i>
+          
+            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
+          
+            <a href="/tags/%E9%9B%86%E7%BE%A4">集群</a>&nbsp;
+          
+            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F">分布式</a>&nbsp;
+          
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 mx-auto">
+    
+    
+      <div class="col-12 col-md-4 m-auto">
         <a href="/2019/10/29/redis%20Sentinel%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/" target="_self">
           <img src="/img/redissentinel.png" srcset="/img/loading.gif" alt="redis Sentinel的使用及原理" class="img-fluid rounded z-depth-3 index-thumbnails">
         </a>
@@ -192,9 +274,9 @@ sudo cp sentinel.conf 26380/senti</div>
         
           <i class="iconfont icon-tag"></i>
           
-            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
-          
             <a href="/tags/sentiel">sentiel</a>&nbsp;
+          
+            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
           
         
       </div>
@@ -391,82 +473,6 @@ sudo vim 6379/redis.conf
     
     
     <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
-        <p class="h4 index-header">redis 持久化的使用及原理</p>
-        
-        
-          
-        
-        <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
-        </div>
-      </a>
-
-      <div>
-        
-          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
-        
-        
-          <i class="iconfont icon-inbox"></i>
-          
-            <a href="/categories/redis">redis</a>&nbsp;
-          &nbsp;
-        
-        
-          <i class="iconfont icon-tag"></i>
-          
-            <a href="/tags/%E6%8C%81%E4%B9%85%E5%8C%96">持久化</a>&nbsp;
-          
-            <a href="/tags/%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D">数据恢复</a>&nbsp;
-          
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mb-4 mx-auto">
-    
-    
-    <div class="col-12 col-md-8 m-auto">
-      <a href="/2019/10/27/redis%20%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
-        <p class="h4 index-header">redis 集群的使用及原理</p>
-        
-        
-          
-        
-        <div class="index-excerpt" >
-          <div class="index-text mb-1"></div>
-        </div>
-      </a>
-
-      <div>
-        
-          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
-        
-        
-          <i class="iconfont icon-inbox"></i>
-          
-            <a href="/categories/redis">redis</a>&nbsp;
-          &nbsp;
-        
-        
-          <i class="iconfont icon-tag"></i>
-          
-            <a href="/tags/%E9%9B%86%E7%BE%A4">集群</a>&nbsp;
-          
-            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F">分布式</a>&nbsp;
-          
-            <a href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8">高可用</a>&nbsp;
-          
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mb-4 mx-auto">
-    
-    
-    <div class="col-12 col-md-8 m-auto">
       <a href="/2019/10/27/Linux%20%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/">
         <p class="h4 index-header">linux 常用操作</p>
         
@@ -527,6 +533,43 @@ sudo vim 6379/redis.conf
           <i class="iconfont icon-tag"></i>
           
             <a href="/tags/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F">观察者模式</a>&nbsp;
+          
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 mx-auto">
+    
+    
+    <div class="col-12 col-md-8 m-auto">
+      <a href="/2019/10/27/redis%20%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
+        <p class="h4 index-header">redis 持久化的使用及原理</p>
+        
+        
+          
+        
+        <div class="index-excerpt" >
+          <div class="index-text mb-1"></div>
+        </div>
+      </a>
+
+      <div>
+        
+          <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-27&nbsp;&nbsp;
+        
+        
+          <i class="iconfont icon-inbox"></i>
+          
+            <a href="/categories/redis">redis</a>&nbsp;
+          &nbsp;
+        
+        
+          <i class="iconfont icon-tag"></i>
+          
+            <a href="/tags/%E6%8C%81%E4%B9%85%E5%8C%96">持久化</a>&nbsp;
+          
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D">数据恢复</a>&nbsp;
           
         
       </div>
