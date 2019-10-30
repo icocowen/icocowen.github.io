@@ -15,7 +15,7 @@
   <meta name="description" content="记录步伐">
   <meta name="author" content="iwen">
   <meta name="keywords" content="">
-  <title>分类 - 算法 ~ i wen‘s blog</title>
+  <title>linux 常用操作 ~ i wen‘s blog</title>
   <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"  >
   <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css"  >
   <link rel="stylesheet" href="/lib/mdbootstrap/css/mdb.min.css"  >
@@ -31,7 +31,7 @@
 
 
 <body>
-  <header style="height: 80vh;">
+  <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -102,6 +102,9 @@
             </span>
 
             
+              <br>
+              <p class="mt-3">星期五, 十月 27日 2017, 2:01 下午</p>
+            
           </div>
 
           
@@ -112,39 +115,88 @@
 
   <main>
     
-      <div class="container nopadding-md">
-        <div class="py-5 z-depth-3" id="board">
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 2 篇文章</p>
-  <hr>
-  
-    
       
-      <p class="h5">2019</p>
-    
-    <a href="/2019/10/27/B%20Tree%20%E5%92%8C%20B+Tree/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">B Tree 和 B+Tree</span>
-      <span style="float: right;">10-27</span>
-    </a>
-  
-    
-    <a href="/2019/10/20/raft%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%90/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">raft算法解析</span>
-      <span style="float: right;">10-20</span>
-    </a>
-  
-</div>
-              </div>
-            </div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="py-5 z-depth-3" id="board">
+        <div class="post-content mx-auto">
+          <div class="markdown-body">
+            <ul>
+<li>安装软件 <code>sudo apt-get install xxxx</code></li>
+<li>更新软件源 <code>sudo apt-get update</code></li>
+<li>更新软件 <code>sudo apt-get upgrade</code></li>
+<li>修改软件源修改的配置文件文<code>/etc/apt/sources.list</code></li>
+<li>查看进程<code>ps -ef</code></li>
+<li>根据结果查找<code>grep xxx</code> ps: <code>ps -ef | grep xxx</code> 根据进程结果查找xxx相关的信息</li>
+<li>修改文件权限<code>chmod a|o|u|g +rwx 文件名</code></li>
+<li>删除软件<code>sudo apt-get purge xxx</code></li>
+<li>vim的常用操作<ul>
+<li>i insert</li>
+<li>u 撤销</li>
+<li>a append</li>
+<li>:x 保存并退出</li>
+<li>:q 退出</li>
+<li>:q! 强制退出</li>
+<li>/pattern 向下查找</li>
+<li>?pattern 向上查找</li>
+<li>G 到文件末尾</li>
+<li>dd 删除行</li>
+<li>dw 删除单词</li>
+</ul>
+</li>
+<li>未完待续</li>
+</ul>
+
+            <hr>
+          </div>
+          <br>
+          <div>
+            
+              <p>
+                <i class="iconfont icon-inbox"></i>
+                
+                  <a class="hover-with-bg" href="/categories/linux">linux</a>
+                  &nbsp;
+                
+              </p>
+            
+            <p>
+              <i class="iconfont icon-tag"></i>
+              
+                <a class="hover-with-bg" href="/tags/%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C">常用操作</a>
+              
+            </p>
+            
+              <p class="note note-warning">转载请注明出处！</p>
+            
           </div>
         </div>
       </div>
+    </div>
+    <div class="d-none d-lg-block col-lg-2 toc-container">
+      
+  <div id="toc">
+    <p class="h4"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+    <div id="tocbot"></div>
+  </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- custom -->
+
+
+<!-- Comments -->
+<div class="col-lg-7 mx-auto nopadding-md">
+  <div class="container comments mx-auto" id="comments">
+    
+  </div>
+</div>
+
     
   </main>
 
@@ -195,6 +247,11 @@
   <script src="/js/lazyload.js" ></script>
 
 
+  
+    <script src="/lib/tocbot/tocbot.min.js" ></script>
+  
+  <script src="/js/post.js" ></script>
+
 
   <script src="/lib/prettify/prettify.min.js" ></script>
   <script>
@@ -210,7 +267,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "分类 - 算法&nbsp;",
+        "linux 常用操作&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 40,

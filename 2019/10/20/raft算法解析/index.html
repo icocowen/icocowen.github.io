@@ -15,7 +15,7 @@
   <meta name="description" content="记录步伐">
   <meta name="author" content="iwen">
   <meta name="keywords" content="">
-  <title>linux 常用操作 ~ i wen‘s blog</title>
+  <title>raft算法解析 ~ i wen‘s blog</title>
   <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"  >
   <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css"  >
   <link rel="stylesheet" href="/lib/mdbootstrap/css/mdb.min.css"  >
@@ -103,7 +103,7 @@
 
             
               <br>
-              <p class="mt-3">星期日, 十月 27日 2019, 9:01 晚上</p>
+              <p class="mt-3">星期日, 十月 20日 2019, 9:01 晚上</p>
             
           </div>
 
@@ -124,7 +124,141 @@
       <div class="py-5 z-depth-3" id="board">
         <div class="post-content mx-auto">
           <div class="markdown-body">
-            
+            <h2 id="Raft"><a href="#Raft" class="headerlink" title="Raft"></a>Raft</h2><p>Raft is a consensus algorithm that is designed to be easy to understand. It’s equivalent to Paxos in fault-tolerance and performance. The difference is that it’s decomposed into relatively independent subproblems, and it cleanly addresses all major pieces needed for practical systems. We hope Raft will make consensus available to a wider audience, and that this wider audience will be able to develop a variety of higher quality consensus-based systems than are available today.</p>
+<p><a href="https://raft.github.io" target="_blank" rel="noopener">描述来源</a></p>
+<h2 id="节点状态"><a href="#节点状态" class="headerlink" title="节点状态"></a>节点状态</h2><p>raft 的每个节点都有以下三种状态，并且在三态之间转化</p>
+<ul>
+<li>Follower</li>
+<li>Candidate</li>
+<li>Leader</li>
+</ul>
+<p>每个节点都维护着一个timeout(150ms~300ms)</p>
+<h2 id="选取leader"><a href="#选取leader" class="headerlink" title="选取leader"></a>选取leader</h2><ol>
+<li>初次启动</li>
+</ol>
+<p><img src="/img/init.png" srcset="/img/loading.gif" alt="初始状态"></p>
+<ul>
+<li>每个节点的状态都是Follower，timeout为在150ms到300ms之间的随机数</li>
+</ul>
+<p><img src="/img/firstvte.png" srcset="/img/loading.gif" alt="有个节点timeout结束"></p>
+<ul>
+<li>有一个节点timeout计时结束，这个节点的状态变为Candidate，并向其他节点发送投票请求</li>
+</ul>
+<p><img src="/img/firstvoteresult.png" srcset="/img/loading.gif" alt="多数选票当选领导"></p>
+<ul>
+<li>收到请求投票的请求节点的timeout重置。全部都投这个Candidate，这个节点当选Leader, 这个节点状态为Leader</li>
+</ul>
+<p><img src="/img/remainstate.png" srcset="/img/loading.gif" alt="维持leader统治"></p>
+<ul>
+<li>Leader 向其他节点发送心跳包保持连接，收到心跳包的节点重置timeout</li>
+</ul>
+<ol start="2">
+<li>原Leader出现故障</li>
+</ol>
+<p><img src="/img/epoch2.png" srcset="/img/loading.gif" alt="原领导宕机"></p>
+<ul>
+<li>这时候各个节点的timeout的作用再次显现</li>
+</ul>
+<p><img src="/img/newcandidate.png" srcset="/img/loading.gif" alt="新的leader从剩下的节点中产生"></p>
+<ul>
+<li>新的leader从新的leader中产生</li>
+</ul>
+<p><img src="/img/voteleaderagain.png" srcset="/img/loading.gif" alt="产生新领导"></p>
+<p><img src="/img/gengxhuandai.png" srcset="/img/loading.gif" alt="原领导上线"></p>
+<ul>
+<li>当网络恢复原领导上线，新的leader向他发送心跳包，原领导收到心跳包，对比里面的epoch发现，新的新领导epoch大于自己的，所以原领导成为新Leader的Follower,并且更新 epoch</li>
+</ul>
+<ol start="3">
+<li>出现多个candidate时如何抉择</li>
+</ol>
+<p><a href="/img/newfournode.png">初始情况</a></p>
+<ul>
+<li>初始情况为四个节点</li>
+</ul>
+<p><img src="/img/requirevoteme.png" srcset="/img/loading.gif" alt="投票"></p>
+<ul>
+<li>两个Candidate同时请求其他节点投选自己</li>
+</ul>
+<p><img src="/img/denyvote.png" srcset="/img/loading.gif" alt="拒绝投票"></p>
+<p><img src="/img/deniedvote.png" srcset="/img/loading.gif" alt="拒绝投票"></p>
+<ul>
+<li>因为他们在这一轮epoch中已经投过票了，所以拒绝再投票</li>
+</ul>
+<p><img src="/img/cpoch3.png" srcset="/img/loading.gif" alt="epoch3"></p>
+<ul>
+<li>因为第二轮没有选出leader，所以等timeout结束，epoch 3开始，又开始了一轮新的投票</li>
+</ul>
+<p><img src="/img/epoch3leader.png" srcset="/img/loading.gif" alt="epoch2leader"></p>
+<ul>
+<li>投票超过半数当选leader</li>
+</ul>
+<h2 id="复制日志"><a href="#复制日志" class="headerlink" title="复制日志"></a>复制日志</h2><ol>
+<li>正常情况下的复制日志</li>
+</ol>
+<p><img src="/img/nomoral.png" srcset="/img/loading.gif" alt="正常情况的初始状态"></p>
+<ul>
+<li>初始状态什么都没有</li>
+</ul>
+<p><img src="/img/leaderreceiver.png" srcset="/img/loading.gif" alt="正常情况的初始状态"></p>
+<ul>
+<li>leader收到信息，信息的状态为 uncommitted</li>
+</ul>
+<p><img src="/img/leadersync.png" srcset="/img/loading.gif" alt="正常情况的初始状态"></p>
+<ul>
+<li>向其他node，同步数据</li>
+</ul>
+<p><img src="/img/commitrequest.png" srcset="/img/loading.gif" alt="正常情况的初始状态"></p>
+<ul>
+<li>当超过半数的节点已经同步的时候，返回客户端ok，leader收到的信息状态转为committed</li>
+</ul>
+<p><img src="/img/syncother.png" srcset="/img/loading.gif" alt="正常情况的初始状态"></p>
+<ul>
+<li>向剩下的node复制日志</li>
+</ul>
+<ol start="2">
+<li>网络分区情况下复制日志</li>
+</ol>
+<p><img src="/img/partition.png" srcset="/img/loading.gif" alt="正常情况下突然网络被分区"></p>
+<ul>
+<li>一个正常的集群中出现了网络分区情况</li>
+</ul>
+<p><img src="/img/bobdeal.png" srcset="/img/loading.gif" alt="插入bob"></p>
+<ul>
+<li>partition1 leader被插入了一条数据</li>
+</ul>
+<p><img src="/img/bobok.png" srcset="/img/loading.gif" alt="partitionok"></p>
+<ul>
+<li>partition1 的一个节点回复ok，回复数不超过半数，无法committed</li>
+</ul>
+<p><img src="/img/tominsert.png" srcset="/img/loading.gif" alt="partition2"></p>
+<ul>
+<li>partition2 因为无法与leader通信，所以重新选举了一个leader，新的leader被插入了一条消息</li>
+</ul>
+<p><img src="/img/tomsync.png" srcset="/img/loading.gif" alt="同步tom"></p>
+<ul>
+<li>partition向其它节点复制日志</li>
+</ul>
+<p><img src="/img/tomcommitted.png" srcset="/img/loading.gif" alt="partitionok"></p>
+<ul>
+<li>超过半数的节点回复ok，这条记录标记为committed</li>
+</ul>
+<p><img src="/img/netisgood.png" srcset="/img/loading.gif" alt="网络分区消失"></p>
+<ul>
+<li>节点之间的网络分区消失</li>
+</ul>
+<p><img src="/img/selectepoch.png" srcset="/img/loading.gif" alt="选择最新的leader"></p>
+<ul>
+<li>网络分区消失，新旧leader之间选择epoch较大的</li>
+</ul>
+<p><img src="/img/delbob.png" srcset="/img/loading.gif" alt="正常情况下突然网络被分区"></p>
+<ul>
+<li>清除未committed的信息，保持数据一致性</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>这只是了解原理，其他具体细节请查看官网</li>
+</ul>
+<p><a href="https://www.jianshu.com/p/8e4bbe7e276c" target="_blank" rel="noopener">参考</a><br><a href="https://raft.github.io/" target="_blank" rel="noopener">Raft 官网</a><br><a href="https://www.infoq.cn/article/coreos-analyse-etcd/" target="_blank" rel="noopener">Raft 算法解析图片</a></p>
+
             <hr>
           </div>
           <br>
@@ -133,7 +267,7 @@
               <p>
                 <i class="iconfont icon-inbox"></i>
                 
-                  <a class="hover-with-bg" href="/categories/linux">linux</a>
+                  <a class="hover-with-bg" href="/categories/%E7%AE%97%E6%B3%95">算法</a>
                   &nbsp;
                 
               </p>
@@ -141,7 +275,9 @@
             <p>
               <i class="iconfont icon-tag"></i>
               
-                <a class="hover-with-bg" href="/tags/%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C">常用操作</a>
+                <a class="hover-with-bg" href="/tags/%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7">数据一致性</a>
+              
+                <a class="hover-with-bg" href="/tags/consensus">consensus</a>
               
             </p>
             
@@ -242,7 +378,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "linux 常用操作&nbsp;",
+        "raft算法解析&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 40,
